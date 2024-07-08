@@ -1,34 +1,32 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.18;
+// Compatible with OpenZeppelin Contracts ^5.0.0
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract DegenGamingToken is ERC20, Ownable {
+contract MyToken is ERC20, ERC20Burnable, Ownable {
+    constructor(address initialOwner)
+        ERC20("Degen", "DGN")
+        Ownable(initialOwner)
+    {}
 
-    address public inGameStore;
-
-    modifier onlyInGameStore() {
-        require(msg.sender == inGameStore, "Only the in-game store can call this function");
-        _;
-    }
-
-    constructor() ERC20("DegenGamingToken", "DGT") {}
-
-    function setInGameStore(address _inGameStore) external onlyOwner {
-        inGameStore = _inGameStore;
-    }
-
-    function mint(address to, uint256 amount) external onlyOwner {
+    function mint(address to, uint256 amount) public onlyOwner {
         _mint(to, amount);
     }
 
-    function redeem(address from, uint256 amount) external onlyInGameStore {
-        _burn(from, amount);
+    function redeem(uint256 amount) public {
+        _burn(msg.sender, amount);
+       
     }
 
-    function burn(uint256 amount) external {
+    function transfer(address to, uint256 amount) public override returns (bool) {
+        _transfer(_msgSender(), to, amount);
+        return true;
+    }
+
+    function burn(uint256 amount) public override {
         _burn(msg.sender, amount);
     }
-
 }
