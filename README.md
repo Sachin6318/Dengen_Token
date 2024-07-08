@@ -14,25 +14,40 @@ Once you are on the Remix website, create a new file by clicking on the "+" icon
 
 
 
-       
-        // SPDX-License-Identifier: MIT
-       // Compatible with OpenZeppelin Contracts ^5.0.0
-          pragma solidity ^0.8.20;
+     // SPDX-License-Identifier: MIT
+     pragma solidity 0.8.18;
 
-        import "@openzeppelin/contracts@5.0.2/token/ERC20/ERC20.sol";
-        import "@openzeppelin/contracts@5.0.2/token/ERC20/extensions/ERC20Burnable.sol";
-        import "@openzeppelin/contracts@5.0.2/access/Ownable.sol";
+    import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+    import "@openzeppelin/contracts/access/Ownable.sol";
 
-         contract Dengen is ERC20, ERC20Burnable, Ownable {
-           constructor(address initialOwner)
-           ERC20("Dengen", "DGN")
-           Ownable(initialOwner)
-            {}
+     contract DegenGamingToken is ERC20, Ownable {
 
-           function mint(address to, uint256 amount) public onlyOwner {
-               _mint(to, amount);
-           }
-       }
+    address public inGameStore;
+
+    modifier onlyInGameStore() {
+        require(msg.sender == inGameStore, "Only the in-game store can call this function");
+        _;
+    }
+
+    constructor() ERC20("DegenGamingToken", "DGT") {}
+
+    function setInGameStore(address _inGameStore) external onlyOwner {
+        inGameStore = _inGameStore;
+    }
+
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
+    }
+
+    function redeem(address from, uint256 amount) external onlyInGameStore {
+        _burn(from, amount);
+    }
+
+    function burn(uint256 amount) external {
+        _burn(msg.sender, amount);
+    }
+
+    }
 
 To compile the code, click on the "Solidity Compiler" tab in the left-hand sidebar. Make sure the "Compiler" option is set to "0.8.20" (or another compatible version), and then click on the "Compile" button.
 
